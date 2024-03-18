@@ -1,0 +1,12 @@
+G:\_git\TeensySoundfontReader_Interface\bin\Debug\TeensySoundfontReader_Interface.exe
+G:\_git\TeensySoundfontReader_Interface\bin\Debug\TeensySoundfontReader_Interface.pdb
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.csproj.AssemblyReference.cache
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.Properties.Resources.resources
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.csproj.GenerateResource.cache
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.csproj.CoreCompileInputs.cache
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.exe
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.pdb
+G:\_git\TeensySoundfontReader_Interface\bin\Debug\Newtonsoft.Json.dll
+G:\_git\TeensySoundfontReader_Interface\bin\Debug\Newtonsoft.Json.xml
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.csproj.CopyComplete
+G:\_git\TeensySoundfontReader_Interface\obj\Debug\TeensySoundfontReader_Interface.MainForm.resources
