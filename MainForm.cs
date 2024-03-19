@@ -56,6 +56,12 @@ namespace TeensySoundfontReader_Interface
                 //dynamic data = JsonConvert.DeserializeObject(json);
                 JObject data = JObject.Parse(json);
                 if (data == null) return;
+                if (data["log"] != null)
+                {
+                    string log = (string)data["log"];
+                    rtxtLog.AppendLine(log);
+                    return;
+                }
                 JArray files = (JArray)data["files"];
                 if (files == null) return;
 
@@ -72,7 +78,7 @@ namespace TeensySoundfontReader_Interface
             }
             catch (Exception ex)
             {
-                rtxtLog.AppendLine("Error while parsing JSON:\n\n" + ex.ToString() + "\n\n"+ json);
+                rtxtLog.AppendLine("Error while parsing JSON:\n\n" + ex.ToString() + "\n\n>>>"+ json + "<<<");
             }
         }
 
@@ -115,7 +121,7 @@ namespace TeensySoundfontReader_Interface
 
         private void btnGetFiles_Click(object sender, EventArgs e)
         {
-            string json = "{\"cmd\":\"list_files\"}\n";
+            string json = "{'cmd':'list_files'}\n";
             if (serial.IsOpen == false)
                 serial.Open();
             serial.Write(json);
@@ -125,11 +131,24 @@ namespace TeensySoundfontReader_Interface
         {
             refreshPorts();
         }
+
+        private void btnReadFile_Click(object sender, EventArgs e)
+        {
+            if (serial.IsOpen == false)
+                serial.Open();
+            FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
+            serial.Write("{'cmd':'read_file','path':'" + fileItem.Name + "'}\n");
+        }
     }
     public class FileListItem
     {
         string name;
         int size;
+
+        public string Name
+        {
+            get { return name; }
+        }
         public FileListItem(string name, int size)
         {
             this.name = name;
