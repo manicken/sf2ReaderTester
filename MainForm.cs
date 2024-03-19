@@ -41,7 +41,11 @@ namespace TeensySoundfontReader_Interface
                 int nextChar = serial.ReadChar();
                 if (nextChar == '\n')
                 {
-                    decodeJson(currLine);
+                    if (currLine.StartsWith("json:"))
+                        decodeJson(currLine.Substring("json:".Length));
+                    else
+                        rtxtLog.AppendLine(currLine);
+
                     currLine = "";
                 }
                 else
@@ -134,6 +138,8 @@ namespace TeensySoundfontReader_Interface
 
         private void btnReadFile_Click(object sender, EventArgs e)
         {
+            if (lstFiles.SelectedItem == null) return;
+            rtxtLog.Clear();
             if (serial.IsOpen == false)
                 serial.Open();
             FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
