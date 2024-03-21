@@ -104,4 +104,11 @@ public static class Extensions
         return r + " ]";
     }
 
+    public static string[] Sort(this string[] thisStringArray)
+    {
+        List<string> t = new List<string>(thisStringArray);
+        t.Sort();
+        return t.ToArray();
+    }
+
 }
