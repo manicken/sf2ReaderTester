@@ -34,10 +34,12 @@ namespace TeensySoundfontReader_Interface
             this.cmdBoxPorts = new System.Windows.Forms.ComboBox();
             this.btnRefreshPorts = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands = new System.Windows.Forms.GroupBox();
+            this.btnListInstruments = new System.Windows.Forms.Button();
             this.btnReadFile = new System.Windows.Forms.Button();
             this.btnGetFiles = new System.Windows.Forms.Button();
             this.lstFiles = new System.Windows.Forms.ListBox();
-            this.btnListInstruments = new System.Windows.Forms.Button();
+            this.lstInstruments = new System.Windows.Forms.ListBox();
+            this.btnLoadInstrument = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,7 +52,7 @@ namespace TeensySoundfontReader_Interface
             this.rtxtLog.Location = new System.Drawing.Point(13, 60);
             this.rtxtLog.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.rtxtLog.Name = "rtxtLog";
-            this.rtxtLog.Size = new System.Drawing.Size(476, 620);
+            this.rtxtLog.Size = new System.Drawing.Size(151, 620);
             this.rtxtLog.TabIndex = 0;
             this.rtxtLog.Text = "";
             // 
@@ -90,6 +92,7 @@ namespace TeensySoundfontReader_Interface
             // grpBoxSerialCommands
             // 
             this.grpBoxSerialCommands.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpBoxSerialCommands.Controls.Add(this.btnLoadInstrument);
             this.grpBoxSerialCommands.Controls.Add(this.btnListInstruments);
             this.grpBoxSerialCommands.Controls.Add(this.btnReadFile);
             this.grpBoxSerialCommands.Controls.Add(this.btnGetFiles);
@@ -102,6 +105,16 @@ namespace TeensySoundfontReader_Interface
             this.grpBoxSerialCommands.TabIndex = 4;
             this.grpBoxSerialCommands.TabStop = false;
             this.grpBoxSerialCommands.Text = "groupBox1";
+            // 
+            // btnListInstruments
+            // 
+            this.btnListInstruments.Location = new System.Drawing.Point(8, 125);
+            this.btnListInstruments.Name = "btnListInstruments";
+            this.btnListInstruments.Size = new System.Drawing.Size(105, 53);
+            this.btnListInstruments.TabIndex = 2;
+            this.btnListInstruments.Text = "list instruments";
+            this.btnListInstruments.UseVisualStyleBackColor = true;
+            this.btnListInstruments.Click += new System.EventHandler(this.btnListInstruments_Click);
             // 
             // btnReadFile
             // 
@@ -137,21 +150,34 @@ namespace TeensySoundfontReader_Interface
             this.lstFiles.Size = new System.Drawing.Size(559, 620);
             this.lstFiles.TabIndex = 5;
             // 
-            // btnListInstruments
+            // lstInstruments
             // 
-            this.btnListInstruments.Location = new System.Drawing.Point(8, 125);
-            this.btnListInstruments.Name = "btnListInstruments";
-            this.btnListInstruments.Size = new System.Drawing.Size(105, 53);
-            this.btnListInstruments.TabIndex = 2;
-            this.btnListInstruments.Text = "list instruments";
-            this.btnListInstruments.UseVisualStyleBackColor = true;
-            this.btnListInstruments.Click += new System.EventHandler(this.btnListInstruments_Click);
+            this.lstInstruments.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstInstruments.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstInstruments.FormattingEnabled = true;
+            this.lstInstruments.ItemHeight = 14;
+            this.lstInstruments.Location = new System.Drawing.Point(171, 60);
+            this.lstInstruments.Name = "lstInstruments";
+            this.lstInstruments.Size = new System.Drawing.Size(319, 620);
+            this.lstInstruments.TabIndex = 6;
+            // 
+            // btnLoadInstrument
+            // 
+            this.btnLoadInstrument.Location = new System.Drawing.Point(8, 184);
+            this.btnLoadInstrument.Name = "btnLoadInstrument";
+            this.btnLoadInstrument.Size = new System.Drawing.Size(105, 56);
+            this.btnLoadInstrument.TabIndex = 3;
+            this.btnLoadInstrument.Text = "Load Instrument";
+            this.btnLoadInstrument.UseVisualStyleBackColor = true;
+            this.btnLoadInstrument.Click += new System.EventHandler(this.btnLoadInstrument_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1200, 692);
+            this.Controls.Add(this.lstInstruments);
             this.Controls.Add(this.rtxtLog);
             this.Controls.Add(this.lstFiles);
             this.Controls.Add(this.grpBoxSerialCommands);
@@ -179,6 +205,8 @@ namespace TeensySoundfontReader_Interface
         private System.Windows.Forms.ListBox lstFiles;
         private System.Windows.Forms.Button btnReadFile;
         private System.Windows.Forms.Button btnListInstruments;
+        private System.Windows.Forms.ListBox lstInstruments;
+        private System.Windows.Forms.Button btnLoadInstrument;
     }
 }
 
