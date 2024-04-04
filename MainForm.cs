@@ -167,6 +167,24 @@ namespace TeensySoundfontReader_Interface
                     }
                     this.Invoke(new Action(() => { lstInstruments.Items.Clear(); lstInstruments.Items.AddRange(instrumentListItem.ToArray()); }));
                 }
+                else if (data["cmd"] != null)
+                {
+                    string cmd = (string)data["cmd"];
+                    if (cmd == "file_loaded")
+                    {
+                        sendListInstruments();
+                    }
+                    else if (cmd == "instrument_loaded")
+                    {
+                        rtxtLog.AppendLine("instrument loaded OK");
+                    }
+                    else
+                        rtxtLog.AppendLine("unknown json cmd:\n" + cmd);
+                }
+                else
+                {
+                    rtxtLog.AppendLine("rx unknown json:\n" + json);
+                }
 
             }
             catch (Exception ex)
@@ -184,6 +202,7 @@ namespace TeensySoundfontReader_Interface
             cmdBoxPorts.Items.Clear();
             currPorts = SerialPort.GetPortNames().Sort();
             cmdBoxPorts.Items.AddRange(currPorts);
+            if (currPorts.Length == 0) return;
             StartPortScan();
         }
 
@@ -221,10 +240,10 @@ namespace TeensySoundfontReader_Interface
 
         private void SendGetFilesCmd()
         {
-            string json = "json:{'cmd':'list_files'}\n";
             if (serial.IsOpen == false)
                 serial.Open();
-            serial.Write(json);
+            //serial.Write("json:{'cmd':'list_files'}\n");
+            serial.Write("list_files:\n");
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -240,7 +259,8 @@ namespace TeensySoundfontReader_Interface
             if (serial.IsOpen == false)
                 serial.Open();
             FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
-            serial.Write("json:{'cmd':'read_file','path':'" + fileItem.Name + "'}\n");
+            //serial.Write("json:{'cmd':'read_file','path':'" + fileItem.Name + "'}\n");
+            serial.Write($"read_file:{fileItem.Name}\n");
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -250,12 +270,17 @@ namespace TeensySoundfontReader_Interface
 
         private void btnListInstruments_Click(object sender, EventArgs e)
         {
-           // rtxtLog.Clear();
+            sendListInstruments();
+        }
+
+        void sendListInstruments()
+        {
+            // rtxtLog.Clear();
             if (serial.IsOpen == false)
                 serial.Open();
 
-            serial.Write("json:{'cmd':'list_instruments'}\n");
-            
+            //serial.Write("json:{'cmd':'list_instruments'}\n");
+            serial.Write("list_instruments\n");
         }
 
         private void btnLoadInstrument_Click(object sender, EventArgs e)
@@ -263,7 +288,8 @@ namespace TeensySoundfontReader_Interface
             if (serial.IsOpen == false)
                 serial.Open();
             InstrumentListItem instItem = (InstrumentListItem)lstInstruments.SelectedItem;
-            serial.Write($"json:{{'cmd':'load_instrument', 'index':{instItem.Index}}}\n");
+            //serial.Write($"json:{{'cmd':'load_instrument', 'index':{instItem.Index}}}\n");
+            serial.Write($"load_instrument:{instItem.Index}\n");
         }
     }
     public class FileListItem
