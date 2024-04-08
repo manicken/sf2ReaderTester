@@ -39,6 +39,7 @@ namespace TeensySoundfontReader_Interface
             this.btnGetFiles = new System.Windows.Forms.Button();
             this.lstFiles = new System.Windows.Forms.ListBox();
             this.lstInstruments = new System.Windows.Forms.ListBox();
+            this.btnExtMemTestExec = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -87,6 +88,7 @@ namespace TeensySoundfontReader_Interface
             // grpBoxSerialCommands
             // 
             this.grpBoxSerialCommands.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpBoxSerialCommands.Controls.Add(this.btnExtMemTestExec);
             this.grpBoxSerialCommands.Controls.Add(this.btnLoadInstrument);
             this.grpBoxSerialCommands.Controls.Add(this.btnReadFile);
             this.grpBoxSerialCommands.Controls.Add(this.btnGetFiles);
@@ -101,7 +103,7 @@ namespace TeensySoundfontReader_Interface
             // btnLoadInstrument
             // 
             this.btnLoadInstrument.Location = new System.Drawing.Point(5, 75);
-            this.btnLoadInstrument.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLoadInstrument.Margin = new System.Windows.Forms.Padding(2);
             this.btnLoadInstrument.Name = "btnLoadInstrument";
             this.btnLoadInstrument.Size = new System.Drawing.Size(70, 36);
             this.btnLoadInstrument.TabIndex = 3;
@@ -112,7 +114,7 @@ namespace TeensySoundfontReader_Interface
             // btnReadFile
             // 
             this.btnReadFile.Location = new System.Drawing.Point(5, 47);
-            this.btnReadFile.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnReadFile.Margin = new System.Windows.Forms.Padding(2);
             this.btnReadFile.Name = "btnReadFile";
             this.btnReadFile.Size = new System.Drawing.Size(70, 24);
             this.btnReadFile.TabIndex = 1;
@@ -150,10 +152,20 @@ namespace TeensySoundfontReader_Interface
             this.lstInstruments.FormattingEnabled = true;
             this.lstInstruments.ItemHeight = 14;
             this.lstInstruments.Location = new System.Drawing.Point(114, 39);
-            this.lstInstruments.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.lstInstruments.Margin = new System.Windows.Forms.Padding(2);
             this.lstInstruments.Name = "lstInstruments";
             this.lstInstruments.Size = new System.Drawing.Size(214, 396);
             this.lstInstruments.TabIndex = 6;
+            // 
+            // btnExtMemTestExec
+            // 
+            this.btnExtMemTestExec.Location = new System.Drawing.Point(2, 219);
+            this.btnExtMemTestExec.Name = "btnExtMemTestExec";
+            this.btnExtMemTestExec.Size = new System.Drawing.Size(75, 37);
+            this.btnExtMemTestExec.TabIndex = 4;
+            this.btnExtMemTestExec.Text = "ExtMemTestExec";
+            this.btnExtMemTestExec.UseVisualStyleBackColor = true;
+            this.btnExtMemTestExec.Click += new System.EventHandler(this.btnExtMemTestExec_Click);
             // 
             // MainForm
             // 
@@ -170,6 +182,7 @@ namespace TeensySoundfontReader_Interface
             this.Name = "MainForm";
             this.Text = "Teensy Soundfont 2 reader - Test GUI";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.grpBoxSerialCommands.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -188,6 +201,7 @@ namespace TeensySoundfontReader_Interface
         private System.Windows.Forms.Button btnReadFile;
         private System.Windows.Forms.ListBox lstInstruments;
         private System.Windows.Forms.Button btnLoadInstrument;
+        private System.Windows.Forms.Button btnExtMemTestExec;
     }
 }
 

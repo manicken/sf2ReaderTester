@@ -41,23 +41,25 @@ namespace TeensySoundfontReader_Interface
         private void PortScanTimer_Tick(object sender, EventArgs e)
         {
             portScanTimer.Stop();
+            PortScanTryNext();
+        }
+        private void PortScanTryNext()
+        {
             if (serial.IsOpen) serial.Close();
             if (portScanIndex == currPorts.Length)
             {
                 rtxtLog.AppendLine("cannot find device");
                 return;
             }
-            PortScanTryNext();
-            
-        }
-        private void PortScanTryNext()
-        {
-            if (serial.IsOpen) serial.Close();
-            serial.PortName = currPorts[portScanIndex];
+            serial.PortName = currPorts[portScanIndex++];
             serial.Open();
-            portScanTimer.Start();
-            serial.Write("ping\n");
-            portScanIndex++;
+            if (serial.IsOpen)
+            {
+                portScanTimer.Start();
+                serial.Write("ping\n");
+            }
+            else
+                PortScanTryNext();
         }
         private void StartPortScan()
         {
@@ -240,27 +242,26 @@ namespace TeensySoundfontReader_Interface
 
         private void SendGetFilesCmd()
         {
-            if (serial.IsOpen == false)
-                serial.Open();
-            //serial.Write("json:{'cmd':'list_files'}\n");
-            serial.Write("list_files:\n");
+            TrySendCmd("list_files:");
         }
 
         private void Form1_Shown(object sender, EventArgs e)
         {
             refreshPorts();
             //StartListenForDevice();
+            int newHeight = (int)((double)Screen.PrimaryScreen.Bounds.Height * 0.5f);
+            int newWidth = (int)((double)Screen.PrimaryScreen.Bounds.Width * 0.7f);
+            this.Height = newHeight;
+            this.Width = newWidth;
         }
 
         private void btnReadFile_Click(object sender, EventArgs e)
         {
             if (lstFiles.SelectedItem == null) return;
             rtxtLog.Clear();
-            if (serial.IsOpen == false)
-                serial.Open();
             FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
-            //serial.Write("json:{'cmd':'read_file','path':'" + fileItem.Name + "'}\n");
-            serial.Write($"read_file:{fileItem.Name}\n");
+            //TrySendCmd("json:{'cmd':'read_file','path':'" + fileItem.Name + "'}");
+            TrySendCmd($"read_file:{fileItem.Name}");
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -276,20 +277,33 @@ namespace TeensySoundfontReader_Interface
         void sendListInstruments()
         {
             // rtxtLog.Clear();
-            if (serial.IsOpen == false)
-                serial.Open();
-
-            //serial.Write("json:{'cmd':'list_instruments'}\n");
-            serial.Write("list_instruments\n");
+            //TrySendCmd("json:{'cmd':'list_instruments'}");
+            TrySendCmd("list_instruments");
         }
 
         private void btnLoadInstrument_Click(object sender, EventArgs e)
         {
+            InstrumentListItem instItem = (InstrumentListItem)lstInstruments.SelectedItem;
+            //TrySendCmd($"json:{{'cmd':'load_instrument', 'index':{instItem.Index}}}\n");
+            TrySendCmd($"load_instrument:{instItem.Index}");
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnExtMemTestExec_Click(object sender, EventArgs e)
+        {
+            TrySendCmd("exec_ext_mem_test");
+        }
+
+        private void TrySendCmd(string cmd)
+        {
             if (serial.IsOpen == false)
                 serial.Open();
-            InstrumentListItem instItem = (InstrumentListItem)lstInstruments.SelectedItem;
-            //serial.Write($"json:{{'cmd':'load_instrument', 'index':{instItem.Index}}}\n");
-            serial.Write($"load_instrument:{instItem.Index}\n");
+            if (serial.IsOpen)
+                serial.Write(cmd + "\n");
         }
     }
     public class FileListItem
