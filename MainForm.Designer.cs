@@ -34,12 +34,13 @@ namespace TeensySoundfontReader_Interface
             this.cmdBoxPorts = new System.Windows.Forms.ComboBox();
             this.btnRefreshPorts = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands = new System.Windows.Forms.GroupBox();
+            this.btnExtMemTestExec = new System.Windows.Forms.Button();
             this.btnLoadInstrument = new System.Windows.Forms.Button();
             this.btnReadFile = new System.Windows.Forms.Button();
             this.btnGetFiles = new System.Windows.Forms.Button();
             this.lstFiles = new System.Windows.Forms.ListBox();
             this.lstInstruments = new System.Windows.Forms.ListBox();
-            this.btnExtMemTestExec = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -88,6 +89,7 @@ namespace TeensySoundfontReader_Interface
             // grpBoxSerialCommands
             // 
             this.grpBoxSerialCommands.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpBoxSerialCommands.Controls.Add(this.button1);
             this.grpBoxSerialCommands.Controls.Add(this.btnExtMemTestExec);
             this.grpBoxSerialCommands.Controls.Add(this.btnLoadInstrument);
             this.grpBoxSerialCommands.Controls.Add(this.btnReadFile);
@@ -99,6 +101,16 @@ namespace TeensySoundfontReader_Interface
             this.grpBoxSerialCommands.TabIndex = 4;
             this.grpBoxSerialCommands.TabStop = false;
             this.grpBoxSerialCommands.Text = "groupBox1";
+            // 
+            // btnExtMemTestExec
+            // 
+            this.btnExtMemTestExec.Location = new System.Drawing.Point(2, 219);
+            this.btnExtMemTestExec.Name = "btnExtMemTestExec";
+            this.btnExtMemTestExec.Size = new System.Drawing.Size(75, 37);
+            this.btnExtMemTestExec.TabIndex = 4;
+            this.btnExtMemTestExec.Text = "ExtMemTestExec";
+            this.btnExtMemTestExec.UseVisualStyleBackColor = true;
+            this.btnExtMemTestExec.Click += new System.EventHandler(this.btnExtMemTestExec_Click);
             // 
             // btnLoadInstrument
             // 
@@ -157,15 +169,15 @@ namespace TeensySoundfontReader_Interface
             this.lstInstruments.Size = new System.Drawing.Size(214, 396);
             this.lstInstruments.TabIndex = 6;
             // 
-            // btnExtMemTestExec
+            // button1
             // 
-            this.btnExtMemTestExec.Location = new System.Drawing.Point(2, 219);
-            this.btnExtMemTestExec.Name = "btnExtMemTestExec";
-            this.btnExtMemTestExec.Size = new System.Drawing.Size(75, 37);
-            this.btnExtMemTestExec.TabIndex = 4;
-            this.btnExtMemTestExec.Text = "ExtMemTestExec";
-            this.btnExtMemTestExec.UseVisualStyleBackColor = true;
-            this.btnExtMemTestExec.Click += new System.EventHandler(this.btnExtMemTestExec_Click);
+            this.button1.Location = new System.Drawing.Point(2, 178);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 35);
+            this.button1.TabIndex = 7;
+            this.button1.Text = "print all errors";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainForm
             // 
@@ -202,6 +214,7 @@ namespace TeensySoundfontReader_Interface
         private System.Windows.Forms.ListBox lstInstruments;
         private System.Windows.Forms.Button btnLoadInstrument;
         private System.Windows.Forms.Button btnExtMemTestExec;
+        private System.Windows.Forms.Button button1;
     }
 }
 

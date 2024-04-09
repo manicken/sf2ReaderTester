@@ -305,6 +305,11 @@ namespace TeensySoundfontReader_Interface
             if (serial.IsOpen)
                 serial.Write(cmd + "\n");
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            TrySendCmd("print_all_errors");
+        }
     }
     public class FileListItem
     {
@@ -351,5 +356,6 @@ namespace TeensySoundfontReader_Interface
         }
 
     }
-
+    
 }
+
