@@ -10,6 +10,7 @@ using System.IO.Ports;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Management;
+using Microsoft.Win32;
 
 namespace TeensySoundfontReader_Interface
 {
@@ -24,6 +25,8 @@ namespace TeensySoundfontReader_Interface
 
         string[] currPorts;
 
+        string usbId = "";
+
         public MainForm()
         {
             InitializeComponent();
@@ -36,6 +39,20 @@ namespace TeensySoundfontReader_Interface
             portScanTimer = new Timer();
             portScanTimer.Interval = 500;
             portScanTimer.Tick += PortScanTimer_Tick;
+
+            
+        }
+
+        private void GetCurrentComportUsbDeviceId(string comname)
+        {
+            string regPath = @"SYSTEM\ControlSet001\Control\COM Name Arbiter\Devices";
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(regPath);
+            if (key == null) { rtxtLog.AppendLine("could not open reg subkey to get usb device id!"); return; }
+            usbId = (string)key.GetValue(comname);
+            if (usbId == null) { key.Close(); rtxtLog.AppendLine("could not read reg value to get usb device id!"); usbId = ""; return; }
+            key.Close();
+            usbId = usbId.Substring(8, 17).ToUpper();
+            rtxtLog.AppendLine($"usb deviceid: {usbId}, for comport: {comname}");
         }
 
         private void PortScanTimer_Tick(object sender, EventArgs e)
@@ -66,17 +83,85 @@ namespace TeensySoundfontReader_Interface
             portScanIndex = 0;
             PortScanTryNext();
         }
+        HashSet<string> connectedDevices = new HashSet<string>();
 
+        void Handle_ConnectDevice_Event(object sender, EventArrivedEventArgs e)
+        {
+            //rtxtLog.AppendLine("USB device connected!");
 
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_USBHub");
+
+            foreach (ManagementObject usbDevice in searcher.Get())
+            {
+                string deviceId = usbDevice["DeviceID"].ToString();
+                deviceId = deviceId.Split('\\')[1];
+                /*if (deviceId == "VID_16C0&PID_048B")
+                {
+                    rtxtLog.AppendLine("USB Devices:   " + usbDevice["Description"]);
+                }*/
+                // If the device was not already connected, print its information
+                if (!connectedDevices.Contains(deviceId))
+                {
+                    rtxtLog.AppendLine("USB Device Connected:   " + deviceId);
+                    //rtxtLog.AppendLine("Device ID: " + usbDevice["DeviceID"]);
+                    //rtxtLog.AppendLine("PNP Device ID: " + usbDevice["PNPDeviceID"]);
+                    //rtxtLog.AppendLine("Description: " + usbDevice["Description"]);
+               
+                    //rtxtLog.AppendLine();
+
+                    // Add the device to the set of connected devices
+                    connectedDevices.Add(deviceId);
+                    
+                }
+                if (deviceId == usbId) {
+                    try {
+                        serial.Open();
+                        rtxtLog.ClearTextInvoked();
+                        rtxtLog.AppendLine("current com device was reconnected!");
+                        TrySendCmd("Hello World"); // this command is not defined, but will answer with a command not found message
+                    }
+                    catch(Exception ex) { }
+                }
+            }
+        }
+        void Handle_DisConnectDevice_Event(object sender, EventArrivedEventArgs e)
+        {
+            //rtxtLog.AppendLine("USB device disconnected!");
+
+            HashSet<string> disconnectedDevices = new HashSet<string>(connectedDevices);
+            // Refresh the list of connected devices
+            connectedDevices.Clear();
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_USBHub");
+
+            foreach (ManagementObject usbDevice in searcher.Get())
+            {
+                string deviceId = usbDevice["DeviceID"].ToString();
+                deviceId = deviceId.Split('\\')[1];
+                // Add the device to the set of connected devices
+                connectedDevices.Add(deviceId);
+                disconnectedDevices.Remove(deviceId); // remove all current devices, only the last removed devices will remain
+            }
+            foreach (string deviceId in disconnectedDevices)
+            {
+                rtxtLog.AppendLine("USB Device Disconnected:" + deviceId);
+                if (deviceId == usbId) { rtxtLog.AppendLine("current com device was disconnected!"); serial.Close(); }
+                //rtxtLog.AppendLine("Device ID: " + deviceId);
+            }
+        }
         private void StartListenForDevice()
         {
             ManagementEventWatcher watcher = new ManagementEventWatcher();
             WqlEventQuery query = new WqlEventQuery("SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 2");
-            
-            watcher.EventArrived += (sender, e) => {
-                rtxtLog.AppendLine("USB device connected");
-                
-            };
+
+            watcher.EventArrived += Handle_ConnectDevice_Event;
+
+            watcher.Query = query;
+            watcher.Start();
+
+            watcher = new ManagementEventWatcher();
+            query = new WqlEventQuery("SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 3");
+
+            watcher.EventArrived += Handle_DisConnectDevice_Event;
 
             watcher.Query = query;
             watcher.Start();
@@ -96,6 +181,7 @@ namespace TeensySoundfontReader_Interface
             while (serial.BytesToRead > 0)
             {
                 int nextChar = serial.ReadChar();
+                if (nextChar == '\r') continue; // skip
                 if (nextChar == '\n')
                 {
                     if (currLine.StartsWith("json:"))
@@ -103,7 +189,8 @@ namespace TeensySoundfontReader_Interface
                     else if (currLine.StartsWith("pong"))
                     {
                         portScanIndex--; // go back one step
-                        rtxtLog.AppendLine("device found @ " + currPorts[portScanIndex]);
+                        GetCurrentComportUsbDeviceId(serial.PortName);
+                        rtxtLog.AppendLine("device found @ " + serial.PortName);
                         this.Invoke((System.Windows.Forms.MethodInvoker)(delegate ()
                         {
                             cmdBoxPorts.SelectedIndex = portScanIndex;
@@ -167,7 +254,11 @@ namespace TeensySoundfontReader_Interface
                         instrumentListItem.Add(new InstrumentListItem(name, ibagNdx, index++));
                         // rtxtLog.AppendLine(name.PadRight(40) + " " + ((size!=-1)?size.ToString():"directory").PadLeft(10));
                     }
-                    this.Invoke(new Action(() => { lstInstruments.Items.Clear(); lstInstruments.Items.AddRange(instrumentListItem.ToArray()); }));
+                    this.Invoke(new Action(() => {
+                        lstInstruments.Items.Clear();
+                        lstInstruments.Items.AddRange(instrumentListItem.ToArray());
+                        if (lstInstruments.Items.Count != 0) lstInstruments.SelectedIndex = 0;
+                    }));
                 }
                 else if (data["cmd"] != null)
                 {
@@ -248,11 +339,12 @@ namespace TeensySoundfontReader_Interface
         private void Form1_Shown(object sender, EventArgs e)
         {
             refreshPorts();
-            //StartListenForDevice();
+            StartListenForDevice();
             int newHeight = (int)((double)Screen.PrimaryScreen.Bounds.Height * 0.5f);
             int newWidth = (int)((double)Screen.PrimaryScreen.Bounds.Width * 0.7f);
             this.Height = newHeight;
             this.Width = newWidth;
+            Handle_DisConnectDevice_Event(null, null);
         }
 
         private void btnReadFile_Click(object sender, EventArgs e)
@@ -283,6 +375,7 @@ namespace TeensySoundfontReader_Interface
 
         private void btnLoadInstrument_Click(object sender, EventArgs e)
         {
+            rtxtLog.Clear();
             InstrumentListItem instItem = (InstrumentListItem)lstInstruments.SelectedItem;
             //TrySendCmd($"json:{{'cmd':'load_instrument', 'index':{instItem.Index}}}\n");
             TrySendCmd($"load_instrument:{instItem.Index}");
@@ -309,6 +402,11 @@ namespace TeensySoundfontReader_Interface
         private void button1_Click(object sender, EventArgs e)
         {
             TrySendCmd("print_all_errors");
+        }
+
+        private void btnPrintInfoChunk_Click(object sender, EventArgs e)
+        {
+            TrySendCmd("print_info");
         }
     }
     public class FileListItem

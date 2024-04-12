@@ -10,9 +10,22 @@ public static class Extensions
     {
         thisRtxt.AppendTextInvoked(ex.ToString() + Environment.NewLine);
     }
-    public static void AppendLine(this RichTextBox thisRtxt, string text)
+    public static void AppendLine(this RichTextBox thisRtxt, string text="")
     {
         thisRtxt.AppendTextInvoked(text + Environment.NewLine);
+    }
+
+    public static void ClearTextInvoked(this RichTextBox thisRtxt)
+    {
+        if (thisRtxt.InvokeRequired)
+        {
+            thisRtxt.Invoke((System.Windows.Forms.MethodInvoker)(delegate ()
+            {
+                thisRtxt.Clear();
+            }));
+        }
+        else
+            thisRtxt.Clear();
     }
 
     public static void AppendTextInvoked(this RichTextBox thisRtxt, string text)

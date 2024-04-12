@@ -34,13 +34,14 @@ namespace TeensySoundfontReader_Interface
             this.cmdBoxPorts = new System.Windows.Forms.ComboBox();
             this.btnRefreshPorts = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.btnExtMemTestExec = new System.Windows.Forms.Button();
             this.btnLoadInstrument = new System.Windows.Forms.Button();
             this.btnReadFile = new System.Windows.Forms.Button();
             this.btnGetFiles = new System.Windows.Forms.Button();
             this.lstFiles = new System.Windows.Forms.ListBox();
             this.lstInstruments = new System.Windows.Forms.ListBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnPrintInfoChunk = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -89,6 +90,7 @@ namespace TeensySoundfontReader_Interface
             // grpBoxSerialCommands
             // 
             this.grpBoxSerialCommands.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpBoxSerialCommands.Controls.Add(this.btnPrintInfoChunk);
             this.grpBoxSerialCommands.Controls.Add(this.button1);
             this.grpBoxSerialCommands.Controls.Add(this.btnExtMemTestExec);
             this.grpBoxSerialCommands.Controls.Add(this.btnLoadInstrument);
@@ -101,6 +103,16 @@ namespace TeensySoundfontReader_Interface
             this.grpBoxSerialCommands.TabIndex = 4;
             this.grpBoxSerialCommands.TabStop = false;
             this.grpBoxSerialCommands.Text = "groupBox1";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(2, 178);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 35);
+            this.button1.TabIndex = 7;
+            this.button1.Text = "print all errors";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // btnExtMemTestExec
             // 
@@ -169,15 +181,15 @@ namespace TeensySoundfontReader_Interface
             this.lstInstruments.Size = new System.Drawing.Size(214, 396);
             this.lstInstruments.TabIndex = 6;
             // 
-            // button1
+            // btnPrintInfoChunk
             // 
-            this.button1.Location = new System.Drawing.Point(2, 178);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 35);
-            this.button1.TabIndex = 7;
-            this.button1.Text = "print all errors";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnPrintInfoChunk.Location = new System.Drawing.Point(5, 116);
+            this.btnPrintInfoChunk.Name = "btnPrintInfoChunk";
+            this.btnPrintInfoChunk.Size = new System.Drawing.Size(70, 27);
+            this.btnPrintInfoChunk.TabIndex = 8;
+            this.btnPrintInfoChunk.Text = "Print INFO";
+            this.btnPrintInfoChunk.UseVisualStyleBackColor = true;
+            this.btnPrintInfoChunk.Click += new System.EventHandler(this.btnPrintInfoChunk_Click);
             // 
             // MainForm
             // 
@@ -215,6 +227,7 @@ namespace TeensySoundfontReader_Interface
         private System.Windows.Forms.Button btnLoadInstrument;
         private System.Windows.Forms.Button btnExtMemTestExec;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnPrintInfoChunk;
     }
 }
 
