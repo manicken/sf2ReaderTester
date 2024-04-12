@@ -27,6 +27,8 @@ namespace TeensySoundfontReader_Interface
 
         string usbId = "";
 
+        bool wantToDisconnect = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -34,6 +36,7 @@ namespace TeensySoundfontReader_Interface
             serial = new SerialPort();
             serial.DataReceived += Serial_DataReceived;
             serial.ErrorReceived += Serial_ErrorReceived;
+            
 
             rxBuffer = new Queue<string>();
             portScanTimer = new Timer();
@@ -118,7 +121,7 @@ namespace TeensySoundfontReader_Interface
                         serial.Open();
                         rtxtLog.ClearTextInvoked();
                         rtxtLog.AppendLine("current com device was reconnected!");
-                        TrySendCmd("Hello World"); // this command is not defined, but will answer with a command not found message
+                        //TrySendCmd("Hello World"); // this command is not defined, but will answer with a command not found message
                     }
                     catch(Exception ex) { }
                 }
@@ -178,36 +181,51 @@ namespace TeensySoundfontReader_Interface
 
         private void Serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            while (serial.BytesToRead > 0)
+            if (serial.IsOpen == false) return;
+            try
             {
-                int nextChar = serial.ReadChar();
-                if (nextChar == '\r') continue; // skip
-                if (nextChar == '\n')
+                while (serial.BytesToRead > 0)
                 {
-                    if (currLine.StartsWith("json:"))
-                        decodeJson(currLine.Substring("json:".Length));
-                    else if (currLine.StartsWith("pong"))
+                    int nextChar = serial.ReadChar();
+                    if (nextChar == '\r') continue; // skip
+                    if (nextChar == '\n')
                     {
-                        portScanIndex--; // go back one step
-                        GetCurrentComportUsbDeviceId(serial.PortName);
-                        rtxtLog.AppendLine("device found @ " + serial.PortName);
-                        this.Invoke((System.Windows.Forms.MethodInvoker)(delegate ()
+                        if (currLine.StartsWith("json:"))
+                            decodeJson(currLine.Substring("json:".Length));
+                        else if (currLine.StartsWith("ACK_KO"))
                         {
-                            cmdBoxPorts.SelectedIndex = portScanIndex;
-                            portScanTimer.Stop();
-                            btnConnectDisconnect.Text = "Disconnect";
-                            grpBoxSerialCommands.Enabled = true;
-                            SendGetFilesCmd();
-                        }));
+                            wantToDisconnect = true;
+                        }
+                        else if (currLine.StartsWith("ACK_OK"))
+                        {
+                            wantToDisconnect = true;
+                        }
+                        else if (currLine.StartsWith("pong"))
+                        {
+                            portScanIndex--; // go back one step
+                            GetCurrentComportUsbDeviceId(serial.PortName);
+                            rtxtLog.AppendLine("device found @ " + serial.PortName);
+                            this.Invoke((System.Windows.Forms.MethodInvoker)(delegate ()
+                            {
+                                cmdBoxPorts.SelectedIndex = portScanIndex;
+                                portScanTimer.Stop();
+                                btnConnectDisconnect.Text = "Disconnect";
+                                grpBoxSerialCommands.Enabled = true;
+                                SendGetFilesCmd();
+                            }));
+                        }
+                        else
+                            rtxtLog.AppendLine(currLine);
+
+                        currLine = "";
                     }
                     else
-                        rtxtLog.AppendLine(currLine);
-
-                    currLine = "";
+                        currLine += (char)nextChar;
                 }
-                else
-                    currLine += (char)nextChar;
+                if (wantToDisconnect) {
+                    this.Invoke(new Action(() => { btnConnectDisconnect.Text = "Connect"; }));  wantToDisconnect = false; serial.Close(); }
             }
+            catch (Exception ex) { rtxtLog.AppendLine(ex.ToString()); }//"gudförbannat"}
         }
 
         private void decodeJson(string json)
@@ -239,6 +257,7 @@ namespace TeensySoundfontReader_Interface
                         // rtxtLog.AppendLine(name.PadRight(40) + " " + ((size!=-1)?size.ToString():"directory").PadLeft(10));
                     }
                     this.Invoke(new Action(() => { lstFiles.Items.Clear(); lstFiles.Items.AddRange(fileListItems.ToArray()); }));
+                    wantToDisconnect = true;
                 }
                 else if (data["instruments"] != null)
                 {
@@ -259,6 +278,7 @@ namespace TeensySoundfontReader_Interface
                         lstInstruments.Items.AddRange(instrumentListItem.ToArray());
                         if (lstInstruments.Items.Count != 0) lstInstruments.SelectedIndex = 0;
                     }));
+                    wantToDisconnect = true;
                 }
                 else if (data["cmd"] != null)
                 {
@@ -270,6 +290,7 @@ namespace TeensySoundfontReader_Interface
                     else if (cmd == "instrument_loaded")
                     {
                         rtxtLog.AppendLine("instrument loaded OK");
+                        wantToDisconnect = true;
                     }
                     else
                         rtxtLog.AppendLine("unknown json cmd:\n" + cmd);
@@ -396,7 +417,13 @@ namespace TeensySoundfontReader_Interface
             if (serial.IsOpen == false)
                 serial.Open();
             if (serial.IsOpen)
+            {
+                this.Invoke(new Action(() =>
+                {
+                    btnConnectDisconnect.Text = "Disconnect";
+                }));
                 serial.Write(cmd + "\n");
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
