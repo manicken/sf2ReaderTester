@@ -435,6 +435,16 @@ namespace TeensySoundfontReader_Interface
         {
             TrySendCmd("print_info");
         }
+
+        private void btnLoadInstrumentDemo_Click(object sender, EventArgs e)
+        {
+            if (lstFiles.SelectedItem == null) { rtxtLog.AppendLine("error file not selected"); return; }
+            if (lstInstruments.SelectedItem == null) { rtxtLog.AppendLine("error instrument not selected"); return; }
+            rtxtLog.Clear();
+            FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
+            //TrySendCmd("json:{'cmd':'read_file','path':'" + fileItem.Name + "'}");
+            TrySendCmd($"load_instrument_from_file:{lstInstruments.SelectedIndex.ToString().PadLeft(5,'0')}:{fileItem.Name}");
+        }
     }
     public class FileListItem
     {
