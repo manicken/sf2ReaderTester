@@ -11,12 +11,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Management;
 using Microsoft.Win32;
+using System.Threading;
 
 namespace TeensySoundfontReader_Interface
 {
     public partial class MainForm : Form
     {
-        Timer portScanTimer;
+        System.Windows.Forms.Timer portScanTimer;
         int portScanIndex;
 
         SerialPort serial;
@@ -29,9 +30,18 @@ namespace TeensySoundfontReader_Interface
 
         bool wantToDisconnect = false;
 
+        System.IO.FileStream fsFileToSend;
+        string fileToSend = "";
+        BackgroundWorker bgwFileSend;
+        class bgwFileSendEvent { public long size; public long curr;}
+
         public MainForm()
         {
             InitializeComponent();
+            bgwFileSend = new BackgroundWorker();
+            bgwFileSend.DoWork += bgwFileSend_DoWork;
+            bgwFileSend.ProgressChanged += bgwFileSend_ProgressChanged;
+            bgwFileSend.WorkerReportsProgress = true;
 
             serial = new SerialPort();
             serial.DataReceived += Serial_DataReceived;
@@ -39,11 +49,39 @@ namespace TeensySoundfontReader_Interface
             
 
             rxBuffer = new Queue<string>();
-            portScanTimer = new Timer();
+            portScanTimer = new System.Windows.Forms.Timer();
             portScanTimer.Interval = 500;
             portScanTimer.Tick += PortScanTimer_Tick;
 
             
+        }
+
+        private void bgwFileSend_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            this.Invoke(new Action(() =>
+            {
+                progressBar1.Value = e.ProgressPercentage;
+            }));
+        }
+
+        private void bgwFileSend_DoWork(object sender, DoWorkEventArgs e)
+        {
+            bgwFileSendEvent state = new bgwFileSendEvent();
+            
+            fsFileToSend = new System.IO.FileStream(fileToSend, System.IO.FileMode.Open);
+            state.size = fsFileToSend.Length;
+            byte[] buff = new byte[4096];
+            int count = 0;
+            int procent = 0;
+            int procentOld = 0;
+            while ((count = fsFileToSend.Read(buff, 0, 4096)) > 0)
+            {
+                if (serial.IsOpen == false) break;
+                serial.Write(buff, 0, count);
+                procent = (int)((double)fsFileToSend.Position / (double)fsFileToSend.Length * 100.0f);
+                if (procent != procentOld) { procentOld = procent; bgwFileSend.ReportProgress(procent); }
+            }
+            fsFileToSend.Close();
         }
 
         private void GetCurrentComportUsbDeviceId(string comname)
@@ -210,7 +248,6 @@ namespace TeensySoundfontReader_Interface
                                 cmdBoxPorts.SelectedIndex = portScanIndex;
                                 portScanTimer.Stop();
                                 btnConnectDisconnect.Text = "Disconnect";
-                                grpBoxSerialCommands.Enabled = true;
                                 SendGetFilesCmd();
                             }));
                         }
@@ -292,8 +329,31 @@ namespace TeensySoundfontReader_Interface
                         rtxtLog.AppendLine("instrument loaded OK");
                         wantToDisconnect = true;
                     }
+                    else if (cmd == "start_send_file_ack")
+                    {
+                        rtxtLog.AppendLine("start to send file data");
+                        if (serial.IsOpen == false)
+                            serial.Open();
+                        
+                        bgwFileSend.RunWorkerAsync();
+
+                    }
+                    else if (cmd == "fileRxOK")
+                    {
+                        rtxtLog.AppendLine("file rx OK");
+                        SendGetFilesCmd();
+                        //wantToDisconnect = true;
+                    }
+                    else if (cmd == "deleted_file")
+                    {
+                        rtxtLog.AppendLine("file delete OK");
+                        SendGetFilesCmd();
+                    }
                     else
+                    {
                         rtxtLog.AppendLine("unknown json cmd:\n" + cmd);
+                        wantToDisconnect = true;
+                    }
                 }
                 else
                 {
@@ -326,7 +386,6 @@ namespace TeensySoundfontReader_Interface
             {
                 serial.Close();
                 btnConnectDisconnect.Text = "Connect";
-                grpBoxSerialCommands.Enabled = false;
                 return;
             }
             try
@@ -334,7 +393,6 @@ namespace TeensySoundfontReader_Interface
                 serial.PortName = (string)cmdBoxPorts.SelectedItem;
                 serial.Open();
                 btnConnectDisconnect.Text = "Disconnect";
-                grpBoxSerialCommands.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -445,6 +503,35 @@ namespace TeensySoundfontReader_Interface
             //TrySendCmd("json:{'cmd':'read_file','path':'" + fileItem.Name + "'}");
             TrySendCmd($"load_instrument_from_file:{lstInstruments.SelectedIndex.ToString().PadLeft(5,'0')}:{fileItem.Name}");
         }
+
+        private void btnSendFileTest_Click(object sender, EventArgs e)
+        {
+            if (lstFiles.SelectedItem == null) { rtxtLog.AppendLine("error file not selected"); return; }
+
+            FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
+            rtxtLog.Clear();
+            rtxtLog.AppendLine($"sending file to teensy:{fileItem.Name}, size(hex):{fileItem.Size.ToString("X2").PadLeft(8, '0')}");
+            TrySendCmd($"transfer_file:{fileItem.Size.ToString("X2").PadLeft(8,'0')}:{fileItem.Name}");
+        }
+
+        private void btnSendFile_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() != DialogResult.OK) return;
+            fileToSend = ofd.FileName;
+            System.IO.FileInfo fi = new System.IO.FileInfo(fileToSend);
+            //rtxtLog.AppendLine($"transfer_file:{fi.Length.ToString("X2").PadLeft(8, '0')}:{System.IO.Path.GetFileName(fileToSend)}");
+            TrySendCmd($"transfer_file:{fi.Length.ToString("X2").PadLeft(8, '0')}:{System.IO.Path.GetFileName(fileToSend)}");
+        }
+
+        private void btnDeleteFile_Click(object sender, EventArgs e)
+        {
+            if (lstFiles.SelectedItem == null) { rtxtLog.AppendLine("error file not selected"); return; }
+
+            FileListItem fileItem = (FileListItem)lstFiles.SelectedItem;
+            rtxtLog.Clear();
+            TrySendCmd($"delete_file:{fileItem.Name}");
+        }
     }
     public class FileListItem
     {
@@ -454,6 +541,10 @@ namespace TeensySoundfontReader_Interface
         public string Name
         {
             get { return name; }
+        }
+        public int Size
+        {
+            get { return size; }
         }
         public FileListItem(string name, int size)
         {

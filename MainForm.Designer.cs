@@ -34,15 +34,19 @@ namespace TeensySoundfontReader_Interface
             this.cmdBoxPorts = new System.Windows.Forms.ComboBox();
             this.btnRefreshPorts = new System.Windows.Forms.Button();
             this.grpBoxSerialCommands = new System.Windows.Forms.GroupBox();
+            this.btnLoadInstrumentDemo = new System.Windows.Forms.Button();
             this.btnPrintInfoChunk = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.btnExtMemTestExec = new System.Windows.Forms.Button();
             this.btnLoadInstrument = new System.Windows.Forms.Button();
             this.btnReadFile = new System.Windows.Forms.Button();
             this.btnGetFiles = new System.Windows.Forms.Button();
+            this.btnSendFileTest = new System.Windows.Forms.Button();
             this.lstFiles = new System.Windows.Forms.ListBox();
             this.lstInstruments = new System.Windows.Forms.ListBox();
-            this.btnLoadInstrumentDemo = new System.Windows.Forms.Button();
+            this.btnSendFile = new System.Windows.Forms.Button();
+            this.btnDeleteFile = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.grpBoxSerialCommands.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,7 +58,7 @@ namespace TeensySoundfontReader_Interface
             this.rtxtLog.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rtxtLog.Location = new System.Drawing.Point(9, 39);
             this.rtxtLog.Name = "rtxtLog";
-            this.rtxtLog.Size = new System.Drawing.Size(102, 404);
+            this.rtxtLog.Size = new System.Drawing.Size(102, 382);
             this.rtxtLog.TabIndex = 0;
             this.rtxtLog.Text = "";
             // 
@@ -98,13 +102,22 @@ namespace TeensySoundfontReader_Interface
             this.grpBoxSerialCommands.Controls.Add(this.btnLoadInstrument);
             this.grpBoxSerialCommands.Controls.Add(this.btnReadFile);
             this.grpBoxSerialCommands.Controls.Add(this.btnGetFiles);
-            this.grpBoxSerialCommands.Enabled = false;
             this.grpBoxSerialCommands.Location = new System.Drawing.Point(709, 35);
             this.grpBoxSerialCommands.Name = "grpBoxSerialCommands";
             this.grpBoxSerialCommands.Size = new System.Drawing.Size(82, 355);
             this.grpBoxSerialCommands.TabIndex = 4;
             this.grpBoxSerialCommands.TabStop = false;
             this.grpBoxSerialCommands.Text = "groupBox1";
+            // 
+            // btnLoadInstrumentDemo
+            // 
+            this.btnLoadInstrumentDemo.Location = new System.Drawing.Point(4, 297);
+            this.btnLoadInstrumentDemo.Name = "btnLoadInstrumentDemo";
+            this.btnLoadInstrumentDemo.Size = new System.Drawing.Size(75, 52);
+            this.btnLoadInstrumentDemo.TabIndex = 9;
+            this.btnLoadInstrumentDemo.Text = "read file and load first instrument";
+            this.btnLoadInstrumentDemo.UseVisualStyleBackColor = true;
+            this.btnLoadInstrumentDemo.Click += new System.EventHandler(this.btnLoadInstrumentDemo_Click);
             // 
             // btnPrintInfoChunk
             // 
@@ -168,6 +181,17 @@ namespace TeensySoundfontReader_Interface
             this.btnGetFiles.UseVisualStyleBackColor = true;
             this.btnGetFiles.Click += new System.EventHandler(this.btnGetFiles_Click);
             // 
+            // btnSendFileTest
+            // 
+            this.btnSendFileTest.Enabled = false;
+            this.btnSendFileTest.Location = new System.Drawing.Point(709, 6);
+            this.btnSendFileTest.Name = "btnSendFileTest";
+            this.btnSendFileTest.Size = new System.Drawing.Size(75, 23);
+            this.btnSendFileTest.TabIndex = 7;
+            this.btnSendFileTest.Text = "send file test";
+            this.btnSendFileTest.UseVisualStyleBackColor = true;
+            this.btnSendFileTest.Click += new System.EventHandler(this.btnSendFileTest_Click);
+            // 
             // lstFiles
             // 
             this.lstFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -177,7 +201,7 @@ namespace TeensySoundfontReader_Interface
             this.lstFiles.ItemHeight = 14;
             this.lstFiles.Location = new System.Drawing.Point(331, 39);
             this.lstFiles.Name = "lstFiles";
-            this.lstFiles.Size = new System.Drawing.Size(374, 396);
+            this.lstFiles.Size = new System.Drawing.Size(374, 382);
             this.lstFiles.TabIndex = 5;
             // 
             // lstInstruments
@@ -190,24 +214,49 @@ namespace TeensySoundfontReader_Interface
             this.lstInstruments.Location = new System.Drawing.Point(114, 39);
             this.lstInstruments.Margin = new System.Windows.Forms.Padding(2);
             this.lstInstruments.Name = "lstInstruments";
-            this.lstInstruments.Size = new System.Drawing.Size(214, 396);
+            this.lstInstruments.Size = new System.Drawing.Size(214, 382);
             this.lstInstruments.TabIndex = 6;
             // 
-            // btnLoadInstrumentDemo
+            // btnSendFile
             // 
-            this.btnLoadInstrumentDemo.Location = new System.Drawing.Point(4, 297);
-            this.btnLoadInstrumentDemo.Name = "btnLoadInstrumentDemo";
-            this.btnLoadInstrumentDemo.Size = new System.Drawing.Size(75, 52);
-            this.btnLoadInstrumentDemo.TabIndex = 9;
-            this.btnLoadInstrumentDemo.Text = "read file and load first instrument";
-            this.btnLoadInstrumentDemo.UseVisualStyleBackColor = true;
-            this.btnLoadInstrumentDemo.Click += new System.EventHandler(this.btnLoadInstrumentDemo_Click);
+            this.btnSendFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSendFile.Location = new System.Drawing.Point(405, 11);
+            this.btnSendFile.Name = "btnSendFile";
+            this.btnSendFile.Size = new System.Drawing.Size(75, 23);
+            this.btnSendFile.TabIndex = 7;
+            this.btnSendFile.Text = "send file";
+            this.btnSendFile.UseVisualStyleBackColor = true;
+            this.btnSendFile.Click += new System.EventHandler(this.btnSendFile_Click);
+            // 
+            // btnDeleteFile
+            // 
+            this.btnDeleteFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeleteFile.Location = new System.Drawing.Point(587, 11);
+            this.btnDeleteFile.Name = "btnDeleteFile";
+            this.btnDeleteFile.Size = new System.Drawing.Size(75, 23);
+            this.btnDeleteFile.TabIndex = 8;
+            this.btnDeleteFile.Text = "delete file";
+            this.btnDeleteFile.UseVisualStyleBackColor = true;
+            this.btnDeleteFile.Click += new System.EventHandler(this.btnDeleteFile_Click);
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar1.Location = new System.Drawing.Point(9, 426);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(782, 23);
+            this.progressBar1.TabIndex = 9;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.btnDeleteFile);
+            this.Controls.Add(this.btnSendFileTest);
+            this.Controls.Add(this.btnSendFile);
             this.Controls.Add(this.lstInstruments);
             this.Controls.Add(this.rtxtLog);
             this.Controls.Add(this.lstFiles);
@@ -241,6 +290,10 @@ namespace TeensySoundfontReader_Interface
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button btnPrintInfoChunk;
         private System.Windows.Forms.Button btnLoadInstrumentDemo;
+        private System.Windows.Forms.Button btnSendFileTest;
+        private System.Windows.Forms.Button btnSendFile;
+        private System.Windows.Forms.Button btnDeleteFile;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 
