@@ -305,14 +305,29 @@ namespace TeensySoundfontReader_Interface
                     int index = 0;
                     foreach (JObject inst in instruments)
                     {
-                        string name = (string)inst["name"];
-                        int ibagNdx = (int)inst["ndx"];
-                        instrumentListItem.Add(new InstrumentListItem(name, ibagNdx, index++));
-                        // rtxtLog.AppendLine(name.PadRight(40) + " " + ((size!=-1)?size.ToString():"directory").PadLeft(10));
+                        instrumentListItem.Add(new InstrumentListItem(inst, index++));
                     }
                     this.Invoke(new Action(() => {
                         lstInstruments.Items.Clear();
                         lstInstruments.Items.AddRange(instrumentListItem.ToArray());
+                        if (lstInstruments.Items.Count != 0) lstInstruments.SelectedIndex = 0;
+                    }));
+                    wantToDisconnect = true;
+                }
+                else if (data["presets"] != null)
+                {
+                    JArray presets = (JArray)data["presets"];
+                    if (presets == null) return;
+
+                    List<PresetListItem> presetListItem = new List<PresetListItem>();
+                    int index = 0;
+                    foreach (JObject preset in presets)
+                    {
+                        presetListItem.Add(new PresetListItem(preset, index++));
+                    }
+                    this.Invoke(new Action(() => {
+                        lstInstruments.Items.Clear();
+                        lstInstruments.Items.AddRange(presetListItem.ToArray());
                         if (lstInstruments.Items.Count != 0) lstInstruments.SelectedIndex = 0;
                     }));
                     wantToDisconnect = true;
@@ -532,6 +547,11 @@ namespace TeensySoundfontReader_Interface
             rtxtLog.Clear();
             TrySendCmd($"delete_file:{fileItem.Name}");
         }
+
+        private void btnListPresets_Click(object sender, EventArgs e)
+        {
+            TrySendCmd("list_presets");
+        }
     }
     public class FileListItem
     {
@@ -565,10 +585,7 @@ namespace TeensySoundfontReader_Interface
         int ibagNdx;
         int index;
 
-        public int Index
-        {
-            get { return index; }
-        }
+        public int Index { get { return index; } }
         public InstrumentListItem(string name, int ibagNdx, int index)
         {
             this.name = name;
@@ -576,11 +593,52 @@ namespace TeensySoundfontReader_Interface
             this.index = index;
         }
 
-        public override string ToString()
+        public InstrumentListItem(JObject json, int index)
         {
-            return name.PadRight(20) + " : " + ibagNdx.ToString();
+            this.name = (string)json["name"];
+            this.ibagNdx = (int)json["ndx"];
+            this.index = index;
         }
 
+        public override string ToString()
+        {
+            return $"{name,-20}:{ibagNdx}";
+        }
+
+    }
+
+    public class PresetListItem
+    {
+        string name;
+        int bagNdx;
+        int bank;
+        int preset;
+        int index;
+
+        public int Index { get { return index; } }
+
+        public PresetListItem(string name, int pbagNdx, int bank, int preset, int index)
+        {
+            this.name = name;
+            this.bagNdx = pbagNdx;
+            this.bank = bank;
+            this.preset = preset;
+            this.index = index;
+        }
+
+        public PresetListItem(JObject json, int index)
+        {
+            this.name = (string)json["name"];
+            this.bagNdx = (int)json["bagNdx"];
+            this.bank = (int)json["bank"];
+            this.preset = (int)json["preset"];
+            this.index = index;
+        }
+
+        public override string ToString()
+        {
+            return $"{name.PadRight(20)}:{bank.ToString().PadLeft(3)}:{preset.ToString().PadLeft(3)}:{bagNdx}"; 
+        }
     }
     
 }
